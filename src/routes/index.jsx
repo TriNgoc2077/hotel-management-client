@@ -5,6 +5,7 @@ import ForgotPasswordPage from "../pages/forgot-password";
 import App from "../App";
 import MainLayout from "../layouts/main";
 import PublicRoute from "./PublicRoute";
+import AdminLayout from "../layouts/admin";
 
 export default function AppRoutes() {
   return useRoutes([
@@ -38,7 +39,16 @@ export default function AppRoutes() {
         // * Private route
       ],
     },
-
+    {
+      element: <AdminLayout />,
+      children: [
+        // ... children
+        // {
+        //   path,
+        //   element
+        // }
+      ]
+    }
     // ** Manager layout
   ]);
 }

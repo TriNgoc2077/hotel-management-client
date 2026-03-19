@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { NAV_HEADER_ITEMS } from "../../constants/header";
+import { useAuthStore } from "../../../stores/useAuthStore";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+  const user = useAuthStore((state) => state.user);
+  const navigate = useNavigate();
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
@@ -38,16 +41,35 @@ export default function Header() {
             isScrolled ? "text-slate-600" : "text-white"
           }`}
         >
-          <Link to="/">Home</Link>
-          <a href="#rooms">Rooms</a>
-          <a href="#amenities">Amenities</a>
-          <a href="#community">Community</a>
+          {NAV_HEADER_ITEMS.map((item) => (
+            <Link
+              key={item.label}
+              to={item.href}
+              className="hover:text-amber-500"
+            >
+              {item.label}
+            </Link>
+          ))}
         </div>
 
-        {/* Button */}
-        <button className="hidden md:block bg-amber-600 text-white px-5 py-2">
-          Book Now
-        </button>
+        <div className="flex gap-x-2 justify-center">
+          {!user ? (
+            <button
+              onClick={() => navigate("/login")}
+              className="px-4 py-2 border rounded-md hover:bg-gray-100"
+            >
+              Login
+            </button>
+          ) : (
+            <button className="flex items-center justify-center w-10 h-10 rounded-full bg-gray-200 hover:bg-gray-300">
+              <User size={18} />
+            </button>
+          )}
+
+          <button className="hidden md:block bg-amber-600 text-white px-5 py-2">
+            Book Now
+          </button>
+        </div>
 
         {/* Mobile */}
         <button
