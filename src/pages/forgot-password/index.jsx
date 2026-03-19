@@ -36,11 +36,6 @@ export default function ForgotPasswordPage() {
       <div className="relative z-10 w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-block mb-6">
-            <span className="text-3xl font-serif font-bold text-white tracking-wider">
-              AURA<span className="text-amber-500">.</span>
-            </span>
-          </Link>
           <h1 className="text-4xl font-serif text-white mb-2">Reset Password</h1>
           <p className="text-slate-400">We'll help you get back to your account</p>
         </div>
@@ -99,14 +94,14 @@ export default function ForgotPasswordPage() {
               {/* Back to Login */}
               <div className="space-y-2">
                 <Link
-                  href="/login"
+                  to="/login"
                   className="w-full border border-white/20 hover:bg-white/10 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center"
                 >
                   Back to Sign In
                 </Link>
                 <p className="text-center text-sm text-slate-400">
                   Don't have an account?{' '}
-                  <Link href="/register" className="text-amber-400 hover:text-amber-300 transition-colors">
+                  <Link to="/register" className="text-amber-400 hover:text-amber-300 transition-colors">
                     Create one
                   </Link>
                 </p>
@@ -148,7 +143,7 @@ export default function ForgotPasswordPage() {
                   </button>
 
                   <Link
-                    href="/login"
+                    to="/login"
                     className="block w-full bg-linear-to-r from-amber-600 to-amber-700 hover:from-amber-700 hover:to-amber-800 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 text-center shadow-lg shadow-amber-600/30"
                   >
                     Back to Sign In

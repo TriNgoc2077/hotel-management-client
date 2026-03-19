@@ -42,11 +42,6 @@ export default function LoginPage() {
       <div className="relative z-10 w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <Link to="/" className="inline-block mb-6">
-            <span className="text-3xl font-serif font-bold text-white tracking-wider">
-              AURA<span className="text-amber-500">.</span>
-            </span>
-          </Link>
           <h1 className="text-4xl font-serif text-white mb-2">Welcome Back</h1>
           <p className="text-slate-400">Sign in to your account to continue</p>
         </div>

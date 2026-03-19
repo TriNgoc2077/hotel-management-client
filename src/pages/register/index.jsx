@@ -64,11 +64,6 @@ export default function RegisterPage() {
       <div className="relative z-10 w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <Link href="/" className="inline-block mb-6">
-            <span className="text-3xl font-serif font-bold text-white tracking-wider">
-              AURA<span className="text-amber-500">.</span>
-            </span>
-          </Link>
           <h1 className="text-4xl font-serif text-white mb-2">Create Account</h1>
           <p className="text-slate-400">Join us for an unforgettable experience</p>
         </div>
@@ -200,7 +195,7 @@ export default function RegisterPage() {
 
           {/* Sign In Link */}
           <Link
-            href="/login"
+            to="/login"
             className="w-full border border-white/20 hover:bg-white/10 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center"
           >
             Sign In
