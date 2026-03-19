@@ -4,9 +4,11 @@ import RegisterPage from "../pages/register";
 import ForgotPasswordPage from "../pages/forgot-password";
 import App from "../App";
 import MainLayout from "../layouts/main";
+import PublicRoute from "./PublicRoute";
 
 export default function AppRoutes() {
   return useRoutes([
+    // ** Main layout
     {
       element: <MainLayout />,
       children: [
@@ -14,19 +16,29 @@ export default function AppRoutes() {
           path: "/",
           element: <App />,
         },
+        // * Public route
         {
-          path: "/login",
-          element: <LoginPage />,
+          element: <PublicRoute />,
+          children: [
+            {
+              path: "/login",
+              element: <LoginPage />,
+            },
+            {
+              path: "/register",
+              element: <RegisterPage />,
+            },
+            {
+              path: "/forgot-password",
+              element: <ForgotPasswordPage />,
+            },
+          ],
         },
-        {
-          path: "/register",
-          element: <RegisterPage />,
-        },
-        {
-          path: "/forgot-password",
-          element: <ForgotPasswordPage />,
-        },
+
+        // * Private route
       ],
     },
+
+    // ** Manager layout
   ]);
 }
