@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { NAV_HEADER_ITEMS } from "../../constants/header";
-import { useAuthStore } from "../../../stores/useAuthStore";
+import { useAuthStore } from "../../../src/stores/useAuthStore";
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
