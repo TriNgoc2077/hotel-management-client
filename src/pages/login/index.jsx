@@ -3,8 +3,11 @@
 import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../stores/useAuthStore";
+import { REGISTERED_USER_KEY } from "../../service/user.service";
 
 export default function LoginPage() {
+  const login = useAuthStore((state) => state.login);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -24,13 +27,26 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    // localStorage.setItem("access_token", "access_token");
 
     setTimeout(() => {
-      console.log("Login data:", formData);
+      const registeredUserRaw = localStorage.getItem(REGISTERED_USER_KEY);
+      const registeredUser = registeredUserRaw ? JSON.parse(registeredUserRaw) : null;
+
+      login({
+        token: "mock_access_token",
+        user: {
+          id: "user-3",
+          full_name: registeredUser?.full_name || "",
+          name: registeredUser?.full_name || "",
+          email: registeredUser?.email || formData.email,
+          phone: registeredUser?.phone || "",
+          address: registeredUser?.address || "",
+          avatar: registeredUser?.avatar || "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80",
+          roleName: "Customer",
+        },
+      });
       setIsLoading(false);
-      alert("Login successful!");
-      navigate("/");
+      navigate("/customer/rooms");
     }, 1000);
   };
 

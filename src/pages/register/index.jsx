@@ -2,9 +2,11 @@
 
 import React, { useState } from 'react';
 import { Mail, Lock, Phone, ArrowRight, Eye, EyeOff, CheckCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { REGISTERED_USER_KEY } from '../../service/user.service';
 
 export default function RegisterPage() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -41,15 +43,20 @@ export default function RegisterPage() {
 
     setIsLoading(true);
     
-    // Simulate API call
     setTimeout(() => {
-      console.log('Register data:', {
+      localStorage.setItem(REGISTERED_USER_KEY, JSON.stringify({
+        id: 'user-3',
+        full_name: '',
         email: formData.email,
         phone: formData.phone,
-        password: formData.password
-      });
+        address: '',
+        avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80",
+        roleName: 'Customer',
+      }));
+      localStorage.setItem('le_ninh_customer_password', formData.password);
       setIsLoading(false);
       alert('Account created successfully!');
+      navigate('/login');
     }, 1000);
   };
 
