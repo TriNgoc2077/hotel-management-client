@@ -66,7 +66,10 @@ export default function Header() {
             </button>
           )}
 
-          <button className="hidden md:block bg-amber-600 text-white px-5 py-2">
+          <button
+            onClick={() => navigate("/customer/rooms")}
+            className="hidden md:block bg-amber-600 text-white px-5 py-2"
+          >
             Book Now
           </button>
         </div>

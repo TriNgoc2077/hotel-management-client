@@ -6,6 +6,7 @@ import App from "../App";
 import MainLayout from "../layouts/main";
 import PublicRoute from "./PublicRoute";
 import AdminLayout from "../layouts/admin";
+
 import AdminDashboardPage from "../pages/admin/dashboard";
 import AdminUsersPage from "../pages/admin/users";
 import AdminReportsPage from "../pages/admin/reports";
@@ -13,9 +14,14 @@ import AdminRoomsPage from "../pages/admin/rooms";
 import AdminServicesPage from "../pages/admin/services";
 import AdminBookingsPage from "../pages/admin/bookings";
 
+import CustomerRoomsPage from "../pages/customer/rooms";
+import CustomerRoomDetailsPage from "../pages/customer/room-details";
+import CustomerBookingsPage from "../pages/customer/bookings";
+import CustomerProfilePage from "../pages/customer/profile";
+import CustomerNotificationsPage from "../pages/customer/notifications";
+
 export default function AppRoutes() {
   return useRoutes([
-    // ** Main layout
     {
       element: <MainLayout />,
       children: [
@@ -23,7 +29,26 @@ export default function AppRoutes() {
           path: "/",
           element: <App />,
         },
-        // * Public route
+        {
+          path: "/customer/rooms",
+          element: <CustomerRoomsPage />,
+        },
+        {
+          path: "/customer/rooms/:roomId",
+          element: <CustomerRoomDetailsPage />,
+        },
+        {
+          path: "/customer/bookings",
+          element: <CustomerBookingsPage />,
+        },
+        {
+          path: "/customer/profile",
+          element: <CustomerProfilePage />,
+        },
+        {
+          path: "/customer/notifications",
+          element: <CustomerNotificationsPage />,
+        },
         {
           element: <PublicRoute />,
           children: [
@@ -41,19 +66,14 @@ export default function AppRoutes() {
             },
           ],
         },
+      ],
+    },
+    {
+      element: <AdminLayout />,
+      children: [
         {
-          element: <AdminLayout />,
-          children: [
-            {
-              path: "/admin",
-              element: <AdminDashboardPage />,
-            },
-            // ... children
-            // {
-            //   path,
-            //   element
-            // }
-          ],
+          path: "/admin",
+          element: <AdminDashboardPage />,
         },
         {
           path: "/admin/users",
@@ -75,20 +95,7 @@ export default function AppRoutes() {
           path: "/admin/bookings",
           element: <AdminBookingsPage />,
         },
-
-        // * Private route
       ],
     },
-    {
-      element: <AdminLayout />,
-      children: [
-        // ... children
-        // {
-        //   path,
-        //   element
-        // }
-      ],
-    },
-    // ** Manager layout
   ]);
 }
