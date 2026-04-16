@@ -1,5 +1,12 @@
 import { create } from "zustand";
 
+// user:
+//   name
+//   email
+//   avatar
+//   phone
+//   roleName
+
 export const useAuthStore = create((set) => ({
   user: null,
   accessToken: null,

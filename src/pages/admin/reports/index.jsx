@@ -77,8 +77,11 @@ export default function AdminReportsPage() {
             key={card.title}
             className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
           >
-            <p className="text-sm text-slate-500">{card.title}</p>
-            <h2 className="mt-3 text-3xl font-bold text-slate-800">
+            <p className="text-sm font-medium text-slate-700">{card.title}</p>
+            <h2
+              className="mt-3 text-3xl font-bold"
+              style={{ color: "#0f172a" }}
+            >
               {card.value}
             </h2>
           </div>
@@ -107,7 +110,7 @@ export default function AdminReportsPage() {
                     <td className="px-4 py-3 text-sm text-slate-700">
                       {item.role}
                     </td>
-                    <td className="px-4 py-3 text-sm text-slate-700">
+                    <td className="px-4 py-3 text-sm font-semibold text-slate-900">
                       {item.total}
                     </td>
                   </tr>
@@ -125,14 +128,14 @@ export default function AdminReportsPage() {
           <div className="mt-4 space-y-4">
             <div className="rounded-xl bg-emerald-50 p-4">
               <p className="text-sm text-emerald-700">Active Customers</p>
-              <p className="mt-2 text-2xl font-bold text-emerald-800">
+              <p className="mt-2 text-2xl font-bold text-slate-900">
                 {activeCustomers}
               </p>
             </div>
 
             <div className="rounded-xl bg-red-50 p-4">
               <p className="text-sm text-red-700">Locked Customers</p>
-              <p className="mt-2 text-2xl font-bold text-red-800">
+              <p className="mt-2 text-2xl font-bold text-slate-900">
                 {lockedCustomers}
               </p>
             </div>
