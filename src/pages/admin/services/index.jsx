@@ -1,37 +1,8 @@
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
+import adminServiceService from "../../../service/admin-service.service";
 
 export default function AdminServicesPage() {
-  const STORAGE_KEY = "admin_services";
-
-  const defaultServices = [
-    {
-      id: "SER001",
-      serviceName: "Breakfast Buffet",
-      category: "F&B",
-      price: "150000",
-      status: "Available",
-    },
-    {
-      id: "SER002",
-      serviceName: "Laundry",
-      category: "Laundry",
-      price: "80000",
-      status: "Available",
-    },
-    {
-      id: "SER003",
-      serviceName: "Airport Pickup",
-      category: "Transportation",
-      price: "300000",
-      status: "Unavailable",
-    },
-  ];
-
-  const [services, setServices] = useState(() => {
-    const savedServices = localStorage.getItem(STORAGE_KEY);
-    return savedServices ? JSON.parse(savedServices) : defaultServices;
-  });
-
+  const [services, setServices] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -40,21 +11,42 @@ export default function AdminServicesPage() {
   const [deletingService, setDeletingService] = useState(null);
   const [newService, setNewService] = useState({
     serviceName: "",
-    category: "F&B",
+    description: "",
     price: "",
-    status: "Available",
+    status: "Active",
   });
 
+  const loadServices = async () => {
+    const res = await adminServiceService.getServices();
+    return res.data.result;
+  };
+
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(services));
-  }, [services]);
+    let isMounted = true;
+
+    const loadInitialData = async () => {
+      const servicesData = await loadServices();
+
+      if (!isMounted) return;
+
+      startTransition(() => {
+        setServices(servicesData);
+      });
+    };
+
+    loadInitialData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const filteredServices = services.filter((service) => {
     const keyword = searchTerm.toLowerCase();
 
     return (
       service.serviceName.toLowerCase().includes(keyword) ||
-      service.category.toLowerCase().includes(keyword) ||
+      service.description.toLowerCase().includes(keyword) ||
       service.status.toLowerCase().includes(keyword)
     );
   });
@@ -68,33 +60,6 @@ export default function AdminServicesPage() {
     }));
   };
 
-  const handleAddService = (e) => {
-    e.preventDefault();
-
-    const serviceId = `SER${String(services.length + 1).padStart(3, "0")}`;
-
-    const serviceToAdd = {
-      id: serviceId,
-      ...newService,
-    };
-
-    setServices((prev) => [serviceToAdd, ...prev]);
-
-    setNewService({
-      serviceName: "",
-      category: "F&B",
-      price: "",
-      status: "Available",
-    });
-
-    setIsAddModalOpen(false);
-  };
-
-  const handleOpenEditModal = (service) => {
-    setEditingService(service);
-    setIsEditModalOpen(true);
-  };
-
   const handleEditServiceChange = (e) => {
     const { name, value } = e.target;
 
@@ -104,28 +69,42 @@ export default function AdminServicesPage() {
     }));
   };
 
-  const handleUpdateService = (e) => {
+  const handleAddService = async (e) => {
     e.preventDefault();
 
-    setServices((prev) =>
-      prev.map((service) =>
-        service.id === editingService.id ? editingService : service
-      )
-    );
+    await adminServiceService.createService(newService);
+    const servicesData = await loadServices();
+    setServices(servicesData);
+
+    setNewService({
+      serviceName: "",
+      description: "",
+      price: "",
+      status: "Active",
+    });
+
+    setIsAddModalOpen(false);
+  };
+
+  const handleUpdateService = async (e) => {
+    e.preventDefault();
+
+    if (!editingService) return;
+
+    await adminServiceService.updateService(editingService.id, editingService);
+    const servicesData = await loadServices();
+    setServices(servicesData);
 
     setIsEditModalOpen(false);
     setEditingService(null);
   };
 
-  const handleOpenDeleteModal = (service) => {
-    setDeletingService(service);
-    setIsDeleteModalOpen(true);
-  };
+  const handleDeleteService = async () => {
+    if (!deletingService) return;
 
-  const handleDeleteService = () => {
-    setServices((prev) =>
-      prev.filter((service) => service.id !== deletingService.id)
-    );
+    await adminServiceService.deleteService(deletingService.id);
+    const servicesData = await loadServices();
+    setServices(servicesData);
 
     setIsDeleteModalOpen(false);
     setDeletingService(null);
@@ -151,7 +130,7 @@ export default function AdminServicesPage() {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by service, category or status"
+              placeholder="Search by service, description or status"
               className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 outline-none focus:border-amber-500"
             />
 
@@ -175,7 +154,7 @@ export default function AdminServicesPage() {
                   Service Name
                 </th>
                 <th className="px-4 py-3 text-sm font-semibold text-slate-600">
-                  Category
+                  Description
                 </th>
                 <th className="px-4 py-3 text-sm font-semibold text-slate-600">
                   Price
@@ -200,7 +179,7 @@ export default function AdminServicesPage() {
                       {service.serviceName}
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-700">
-                      {service.category}
+                      {service.description}
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-700">
                       {service.price}
@@ -208,7 +187,7 @@ export default function AdminServicesPage() {
                     <td className="px-4 py-3 text-sm">
                       <span
                         className={`rounded-full px-3 py-1 text-xs font-medium ${
-                          service.status === "Available"
+                          service.status === "Active"
                             ? "bg-emerald-100 text-emerald-700"
                             : "bg-red-100 text-red-700"
                         }`}
@@ -219,14 +198,20 @@ export default function AdminServicesPage() {
                     <td className="px-4 py-3 text-sm">
                       <div className="flex gap-2">
                         <button
-                          onClick={() => handleOpenEditModal(service)}
+                          onClick={() => {
+                            setEditingService(service);
+                            setIsEditModalOpen(true);
+                          }}
                           className="rounded-lg bg-blue-100 px-3 py-1 text-blue-700 hover:bg-blue-200"
                         >
                           Edit
                         </button>
 
                         <button
-                          onClick={() => handleOpenDeleteModal(service)}
+                          onClick={() => {
+                            setDeletingService(service);
+                            setIsDeleteModalOpen(true);
+                          }}
                           className="rounded-lg bg-slate-200 px-3 py-1 text-slate-700 hover:bg-slate-300"
                         >
                           Delete
@@ -280,38 +265,18 @@ export default function AdminServicesPage() {
                 />
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Category
-                  </label>
-                  <select
-                    name="category"
-                    value={newService.category}
-                    onChange={handleNewServiceChange}
-                    className="w-full rounded-lg border border-slate-300 px-4 py-2 outline-none focus:border-amber-500"
-                  >
-                    <option value="F&B">F&B</option>
-                    <option value="Laundry">Laundry</option>
-                    <option value="Spa">Spa</option>
-                    <option value="Transportation">Transportation</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Status
-                  </label>
-                  <select
-                    name="status"
-                    value={newService.status}
-                    onChange={handleNewServiceChange}
-                    className="w-full rounded-lg border border-slate-300 px-4 py-2 outline-none focus:border-amber-500"
-                  >
-                    <option value="Available">Available</option>
-                    <option value="Unavailable">Unavailable</option>
-                  </select>
-                </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Description
+                </label>
+                <input
+                  type="text"
+                  name="description"
+                  value={newService.description}
+                  onChange={handleNewServiceChange}
+                  required
+                  className="w-full rounded-lg border border-slate-300 px-4 py-2 outline-none focus:border-amber-500"
+                />
               </div>
 
               <div>
@@ -326,6 +291,21 @@ export default function AdminServicesPage() {
                   required
                   className="w-full rounded-lg border border-slate-300 px-4 py-2 outline-none focus:border-amber-500"
                 />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Status
+                </label>
+                <select
+                  name="status"
+                  value={newService.status}
+                  onChange={handleNewServiceChange}
+                  className="w-full rounded-lg border border-slate-300 px-4 py-2 outline-none focus:border-amber-500"
+                >
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
               </div>
 
               <div className="flex justify-end gap-3 pt-4">
@@ -384,38 +364,18 @@ export default function AdminServicesPage() {
                 />
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Category
-                  </label>
-                  <select
-                    name="category"
-                    value={editingService.category}
-                    onChange={handleEditServiceChange}
-                    className="w-full rounded-lg border border-slate-300 px-4 py-2 outline-none focus:border-amber-500"
-                  >
-                    <option value="F&B">F&B</option>
-                    <option value="Laundry">Laundry</option>
-                    <option value="Spa">Spa</option>
-                    <option value="Transportation">Transportation</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Status
-                  </label>
-                  <select
-                    name="status"
-                    value={editingService.status}
-                    onChange={handleEditServiceChange}
-                    className="w-full rounded-lg border border-slate-300 px-4 py-2 outline-none focus:border-amber-500"
-                  >
-                    <option value="Available">Available</option>
-                    <option value="Unavailable">Unavailable</option>
-                  </select>
-                </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Description
+                </label>
+                <input
+                  type="text"
+                  name="description"
+                  value={editingService.description}
+                  onChange={handleEditServiceChange}
+                  required
+                  className="w-full rounded-lg border border-slate-300 px-4 py-2 outline-none focus:border-amber-500"
+                />
               </div>
 
               <div>
@@ -430,6 +390,21 @@ export default function AdminServicesPage() {
                   required
                   className="w-full rounded-lg border border-slate-300 px-4 py-2 outline-none focus:border-amber-500"
                 />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Status
+                </label>
+                <select
+                  name="status"
+                  value={editingService.status}
+                  onChange={handleEditServiceChange}
+                  className="w-full rounded-lg border border-slate-300 px-4 py-2 outline-none focus:border-amber-500"
+                >
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
               </div>
 
               <div className="flex justify-end gap-3 pt-4">

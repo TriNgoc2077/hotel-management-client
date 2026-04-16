@@ -1,45 +1,11 @@
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
+import adminBookingService from "../../../service/admin-booking.service";
 
 export default function AdminBookingsPage() {
-  const STORAGE_KEY = "admin_bookings";
-  const ROOM_STORAGE_KEY = "admin_rooms";
-  const CUSTOMER_STORAGE_KEY = "admin_customers";
-  const SERVICE_STORAGE_KEY = "admin_services";
-
-  const defaultBookings = [
-    {
-      id: "BK001",
-      customerName: "Tran Thi B",
-      roomNumber: "202",
-      services: ["Breakfast Buffet"],
-      checkInDate: "2026-04-20",
-      checkOutDate: "2026-04-22",
-      status: "Confirmed",
-    },
-    {
-      id: "BK002",
-      customerName: "Le Van C",
-      roomNumber: "305",
-      services: ["Laundry"],
-      checkInDate: "2026-04-23",
-      checkOutDate: "2026-04-25",
-      status: "Pending",
-    },
-  ];
-
-  const customers = JSON.parse(
-    localStorage.getItem(CUSTOMER_STORAGE_KEY) || "[]"
-  );
-  const rooms = JSON.parse(localStorage.getItem(ROOM_STORAGE_KEY) || "[]");
-  const services = JSON.parse(
-    localStorage.getItem(SERVICE_STORAGE_KEY) || "[]"
-  );
-
-  const [bookings, setBookings] = useState(() => {
-    const savedBookings = localStorage.getItem(STORAGE_KEY);
-    return savedBookings ? JSON.parse(savedBookings) : defaultBookings;
-  });
-
+  const [bookings, setBookings] = useState([]);
+  const [customers, setCustomers] = useState([]);
+  const [rooms, setRooms] = useState([]);
+  const [services, setServices] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -56,9 +22,54 @@ export default function AdminBookingsPage() {
     status: "Pending",
   });
 
+  const loadBookings = async () => {
+    const res = await adminBookingService.getBookings();
+    return res.data.result;
+  };
+
+  const loadCustomers = async () => {
+    const res = await adminBookingService.getCustomers();
+    return res.data;
+  };
+
+  const loadRooms = async () => {
+    const res = await adminBookingService.getRooms();
+    return res.data;
+  };
+
+  const loadServices = async () => {
+    const res = await adminBookingService.getServices();
+    return res.data;
+  };
+
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(bookings));
-  }, [bookings]);
+    let isMounted = true;
+
+    const loadInitialData = async () => {
+      const [bookingsData, customersData, roomsData, servicesData] =
+        await Promise.all([
+          loadBookings(),
+          loadCustomers(),
+          loadRooms(),
+          loadServices(),
+        ]);
+
+      if (!isMounted) return;
+
+      startTransition(() => {
+        setBookings(bookingsData);
+        setCustomers(customersData);
+        setRooms(roomsData);
+        setServices(servicesData);
+      });
+    };
+
+    loadInitialData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const filteredBookings = bookings.filter((booking) => {
     const keyword = searchTerm.toLowerCase();
@@ -66,7 +77,8 @@ export default function AdminBookingsPage() {
     return (
       booking.customerName.toLowerCase().includes(keyword) ||
       booking.roomNumber.toLowerCase().includes(keyword) ||
-      booking.status.toLowerCase().includes(keyword)
+      booking.status.toLowerCase().includes(keyword) ||
+      booking.shortId.toLowerCase().includes(keyword)
     );
   });
 
@@ -74,6 +86,15 @@ export default function AdminBookingsPage() {
     const { name, value } = e.target;
 
     setNewBooking((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleEditBookingChange = (e) => {
+    const { name, value } = e.target;
+
+    setEditingBooking((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -88,17 +109,21 @@ export default function AdminBookingsPage() {
     }));
   };
 
-  const handleAddBooking = (e) => {
+  const handleEditServiceToggle = (serviceName) => {
+    setEditingBooking((prev) => ({
+      ...prev,
+      services: prev.services.includes(serviceName)
+        ? prev.services.filter((item) => item !== serviceName)
+        : [...prev.services, serviceName],
+    }));
+  };
+
+  const handleAddBooking = async (e) => {
     e.preventDefault();
 
-    const bookingId = `BK${String(bookings.length + 1).padStart(3, "0")}`;
-
-    const bookingToAdd = {
-      id: bookingId,
-      ...newBooking,
-    };
-
-    setBookings((prev) => [bookingToAdd, ...prev]);
+    await adminBookingService.createBooking(newBooking);
+    const bookingsData = await loadBookings();
+    setBookings(bookingsData);
 
     setNewBooking({
       customerName: "",
@@ -112,37 +137,14 @@ export default function AdminBookingsPage() {
     setIsAddModalOpen(false);
   };
 
-  const handleOpenEditModal = (booking) => {
-    setEditingBooking(booking);
-    setIsEditModalOpen(true);
-  };
-
-  const handleEditBookingChange = (e) => {
-    const { name, value } = e.target;
-
-    setEditingBooking((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleEditServiceToggle = (serviceName) => {
-    setEditingBooking((prev) => ({
-      ...prev,
-      services: prev.services.includes(serviceName)
-        ? prev.services.filter((item) => item !== serviceName)
-        : [...prev.services, serviceName],
-    }));
-  };
-
-  const handleUpdateBooking = (e) => {
+  const handleUpdateBooking = async (e) => {
     e.preventDefault();
 
-    setBookings((prev) =>
-      prev.map((booking) =>
-        booking.id === editingBooking.id ? editingBooking : booking
-      )
-    );
+    if (!editingBooking) return;
+
+    await adminBookingService.updateBooking(editingBooking.id, editingBooking);
+    const bookingsData = await loadBookings();
+    setBookings(bookingsData);
 
     setIsEditModalOpen(false);
     setEditingBooking(null);
@@ -153,10 +155,12 @@ export default function AdminBookingsPage() {
     setIsDeleteModalOpen(true);
   };
 
-  const handleDeleteBooking = () => {
-    setBookings((prev) =>
-      prev.filter((booking) => booking.id !== deletingBooking.id)
-    );
+  const handleDeleteBooking = async () => {
+    if (!deletingBooking) return;
+
+    await adminBookingService.deleteBooking(deletingBooking.id);
+    const bookingsData = await loadBookings();
+    setBookings(bookingsData);
 
     setIsDeleteModalOpen(false);
     setDeletingBooking(null);
@@ -182,7 +186,7 @@ export default function AdminBookingsPage() {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by customer, room or status"
+              placeholder="Search by booking, customer, room or status"
               className="rounded-lg border border-slate-300 px-4 py-2 text-sm text-slate-700 outline-none focus:border-amber-500"
             />
 
@@ -200,7 +204,7 @@ export default function AdminBookingsPage() {
             <thead>
               <tr className="border-b border-slate-200 text-left">
                 <th className="px-4 py-3 text-sm font-semibold text-slate-600">
-                  ID
+                  Booking Code
                 </th>
                 <th className="px-4 py-3 text-sm font-semibold text-slate-600">
                   Customer
@@ -231,7 +235,7 @@ export default function AdminBookingsPage() {
                 filteredBookings.map((booking) => (
                   <tr key={booking.id} className="border-b border-slate-100">
                     <td className="px-4 py-3 text-sm text-slate-700">
-                      {booking.id}
+                      {booking.shortId}
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-700">
                       {booking.customerName}
@@ -266,7 +270,10 @@ export default function AdminBookingsPage() {
                     <td className="px-4 py-3 text-sm">
                       <div className="flex gap-2">
                         <button
-                          onClick={() => handleOpenEditModal(booking)}
+                          onClick={() => {
+                            setEditingBooking(booking);
+                            setIsEditModalOpen(true);
+                          }}
                           className="rounded-lg bg-blue-100 px-3 py-1 text-blue-700 hover:bg-blue-200"
                         >
                           Edit
@@ -347,7 +354,7 @@ export default function AdminBookingsPage() {
                   <option value="">Select room</option>
                   {rooms.map((room) => (
                     <option key={room.id} value={room.roomNumber}>
-                      {room.roomNumber} - {room.roomType}
+                      {room.roomNumber}
                     </option>
                   ))}
                 </select>
@@ -502,7 +509,7 @@ export default function AdminBookingsPage() {
                   <option value="">Select room</option>
                   {rooms.map((room) => (
                     <option key={room.id} value={room.roomNumber}>
-                      {room.roomNumber} - {room.roomType}
+                      {room.roomNumber}
                     </option>
                   ))}
                 </select>
@@ -615,7 +622,7 @@ export default function AdminBookingsPage() {
             <p className="mt-4 text-sm text-slate-600">
               Are you sure you want to delete booking{" "}
               <span className="font-semibold text-slate-800">
-                {deletingBooking.id}
+                {deletingBooking.shortId}
               </span>
               ?
             </p>

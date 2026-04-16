@@ -1,5 +1,17 @@
+import { useEffect, useState } from "react";
+import adminUserService from "../../../service/admin-user.service";
+
 export default function AdminReportsPage() {
-  const users = JSON.parse(localStorage.getItem("admin_customers") || "[]");
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    const loadUsers = async () => {
+      const res = await adminUserService.getUsers();
+      setUsers(res.data.result);
+    };
+
+    loadUsers();
+  }, []);
 
   const totalCustomers = users.length;
   const activeCustomers = users.filter(
@@ -12,7 +24,7 @@ export default function AdminReportsPage() {
     (user) => user.role === "Customer"
   ).length;
   const employeeRoleCount = users.filter(
-    (user) => user.role === "Employee"
+    (user) => user.role === "Staff"
   ).length;
   const adminRoleCount = users.filter((user) => user.role === "Admin").length;
 
@@ -41,7 +53,7 @@ export default function AdminReportsPage() {
       total: customerRoleCount,
     },
     {
-      role: "Employee",
+      role: "Staff",
       total: employeeRoleCount,
     },
     {

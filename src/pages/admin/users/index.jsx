@@ -1,40 +1,9 @@
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
+import adminUserService from "../../../service/admin-user.service";
 
 export default function AdminUsersPage() {
-  const STORAGE_KEY = "admin_customers";
-
-  const defaultUsers = [
-    {
-      id: "CUS001",
-      fullName: "Nguyen Van A",
-      email: "nguyenvana@gmail.com",
-      phone: "0901234567",
-      role: "Customer",
-      status: "Active",
-    },
-    {
-      id: "CUS002",
-      fullName: "Tran Thi B",
-      email: "tranthib@gmail.com",
-      phone: "0912345678",
-      role: "Customer",
-      status: "Active",
-    },
-    {
-      id: "CUS003",
-      fullName: "Le Van C",
-      email: "levanc@gmail.com",
-      phone: "0987654321",
-      role: "Customer",
-      status: "Locked",
-    },
-  ];
-
-  const [users, setUsers] = useState(() => {
-    const savedUsers = localStorage.getItem(STORAGE_KEY);
-    return savedUsers ? JSON.parse(savedUsers) : defaultUsers;
-  });
-
+  const [users, setUsers] = useState([]);
+  const [roles, setRoles] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -45,13 +14,44 @@ export default function AdminUsersPage() {
     fullName: "",
     email: "",
     phone: "",
-    role: "Customer",
+    address: "",
+    roleId: "role-3",
     status: "Active",
   });
 
+  const loadUsers = async () => {
+    const res = await adminUserService.getUsers();
+    return res.data.result;
+  };
+
+  const loadRoles = async () => {
+    const res = await adminUserService.getRoles();
+    return res.data;
+  };
+
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
-  }, [users]);
+    let isMounted = true;
+
+    const loadInitialData = async () => {
+      const [usersData, rolesData] = await Promise.all([
+        loadUsers(),
+        loadRoles(),
+      ]);
+
+      if (!isMounted) return;
+
+      startTransition(() => {
+        setUsers(usersData);
+        setRoles(rolesData);
+      });
+    };
+
+    loadInitialData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const filteredUsers = users.filter((user) => {
     const keyword = searchTerm.toLowerCase();
@@ -72,40 +72,29 @@ export default function AdminUsersPage() {
     }));
   };
 
-  const handleAddCustomer = (e) => {
+  const handleAddCustomer = async (e) => {
     e.preventDefault();
 
-    const customerId = `CUS${String(users.length + 1).padStart(3, "0")}`;
-
-    const customerToAdd = {
-      id: customerId,
-      ...newCustomer,
-    };
-
-    setUsers((prev) => [customerToAdd, ...prev]);
+    await adminUserService.createUser(newCustomer);
+    const usersData = await loadUsers();
+    setUsers(usersData);
 
     setNewCustomer({
       fullName: "",
       email: "",
       phone: "",
-      role: "Customer",
+      address: "",
+      roleId: "role-3",
       status: "Active",
     });
 
     setIsAddModalOpen(false);
   };
 
-  const handleToggleStatus = (customerId) => {
-    setUsers((prev) =>
-      prev.map((user) =>
-        user.id === customerId
-          ? {
-              ...user,
-              status: user.status === "Active" ? "Locked" : "Active",
-            }
-          : user
-      )
-    );
+  const handleToggleStatus = async (customerId) => {
+    await adminUserService.toggleUserStatus(customerId);
+    const usersData = await loadUsers();
+    setUsers(usersData);
   };
 
   const handleOpenEditModal = (customer) => {
@@ -122,14 +111,14 @@ export default function AdminUsersPage() {
     }));
   };
 
-  const handleUpdateCustomer = (e) => {
+  const handleUpdateCustomer = async (e) => {
     e.preventDefault();
 
-    setUsers((prev) =>
-      prev.map((user) =>
-        user.id === editingCustomer.id ? editingCustomer : user
-      )
-    );
+    if (!editingCustomer) return;
+
+    await adminUserService.updateUser(editingCustomer.id, editingCustomer);
+    const usersData = await loadUsers();
+    setUsers(usersData);
 
     setIsEditModalOpen(false);
     setEditingCustomer(null);
@@ -140,8 +129,12 @@ export default function AdminUsersPage() {
     setIsDeleteModalOpen(true);
   };
 
-  const handleDeleteCustomer = () => {
-    setUsers((prev) => prev.filter((user) => user.id !== deletingCustomer.id));
+  const handleDeleteCustomer = async () => {
+    if (!deletingCustomer) return;
+
+    await adminUserService.deleteUser(deletingCustomer.id);
+    const usersData = await loadUsers();
+    setUsers(usersData);
 
     setIsDeleteModalOpen(false);
     setDeletingCustomer(null);
@@ -345,20 +338,36 @@ export default function AdminUsersPage() {
                 />
               </div>
 
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Address
+                </label>
+                <input
+                  type="text"
+                  name="address"
+                  value={newCustomer.address}
+                  onChange={handleNewCustomerChange}
+                  required
+                  className="w-full rounded-lg border border-slate-300 px-4 py-2 outline-none focus:border-amber-500"
+                />
+              </div>
+
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">
                     Role
                   </label>
                   <select
-                    name="role"
-                    value={newCustomer.role}
+                    name="roleId"
+                    value={newCustomer.roleId}
                     onChange={handleNewCustomerChange}
                     className="w-full rounded-lg border border-slate-300 px-4 py-2 outline-none focus:border-amber-500"
                   >
-                    <option value="Customer">Customer</option>
-                    <option value="Employee">Employee</option>
-                    <option value="Admin">Admin</option>
+                    {roles.map((role) => (
+                      <option key={role.id} value={role.id}>
+                        {role.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -462,20 +471,36 @@ export default function AdminUsersPage() {
                 />
               </div>
 
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Address
+                </label>
+                <input
+                  type="text"
+                  name="address"
+                  value={editingCustomer.address || ""}
+                  onChange={handleEditCustomerChange}
+                  required
+                  className="w-full rounded-lg border border-slate-300 px-4 py-2 outline-none focus:border-amber-500"
+                />
+              </div>
+
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">
                     Role
                   </label>
                   <select
-                    name="role"
-                    value={editingCustomer.role}
+                    name="roleId"
+                    value={editingCustomer.roleId}
                     onChange={handleEditCustomerChange}
                     className="w-full rounded-lg border border-slate-300 px-4 py-2 outline-none focus:border-amber-500"
                   >
-                    <option value="Customer">Customer</option>
-                    <option value="Employee">Employee</option>
-                    <option value="Admin">Admin</option>
+                    {roles.map((role) => (
+                      <option key={role.id} value={role.id}>
+                        {role.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 

@@ -1,40 +1,9 @@
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useState } from "react";
+import adminRoomService from "../../../service/admin-room.service";
 
 export default function AdminRoomsPage() {
-  const STORAGE_KEY = "admin_rooms";
-
-  const defaultRooms = [
-    {
-      id: "ROOM001",
-      roomNumber: "101",
-      roomType: "Standard",
-      price: "500000",
-      capacity: "2",
-      status: "Available",
-    },
-    {
-      id: "ROOM002",
-      roomNumber: "202",
-      roomType: "Deluxe",
-      price: "900000",
-      capacity: "3",
-      status: "Booked",
-    },
-    {
-      id: "ROOM003",
-      roomNumber: "305",
-      roomType: "VIP",
-      price: "1500000",
-      capacity: "4",
-      status: "Maintenance",
-    },
-  ];
-
-  const [rooms, setRooms] = useState(() => {
-    const savedRooms = localStorage.getItem(STORAGE_KEY);
-    return savedRooms ? JSON.parse(savedRooms) : defaultRooms;
-  });
-
+  const [rooms, setRooms] = useState([]);
+  const [roomTypes, setRoomTypes] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -43,15 +12,43 @@ export default function AdminRoomsPage() {
   const [deletingRoom, setDeletingRoom] = useState(null);
   const [newRoom, setNewRoom] = useState({
     roomNumber: "",
-    roomType: "Standard",
-    price: "",
-    capacity: "",
+    roomTypeId: "rt-1",
     status: "Available",
   });
 
+  const loadRooms = async () => {
+    const res = await adminRoomService.getRooms();
+    return res.data.result;
+  };
+
+  const loadRoomTypes = async () => {
+    const res = await adminRoomService.getRoomTypes();
+    return res.data;
+  };
+
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(rooms));
-  }, [rooms]);
+    let isMounted = true;
+
+    const loadInitialData = async () => {
+      const [roomsData, roomTypesData] = await Promise.all([
+        loadRooms(),
+        loadRoomTypes(),
+      ]);
+
+      if (!isMounted) return;
+
+      startTransition(() => {
+        setRooms(roomsData);
+        setRoomTypes(roomTypesData);
+      });
+    };
+
+    loadInitialData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const filteredRooms = rooms.filter((room) => {
     const keyword = searchTerm.toLowerCase();
@@ -72,34 +69,6 @@ export default function AdminRoomsPage() {
     }));
   };
 
-  const handleAddRoom = (e) => {
-    e.preventDefault();
-
-    const roomId = `ROOM${String(rooms.length + 1).padStart(3, "0")}`;
-
-    const roomToAdd = {
-      id: roomId,
-      ...newRoom,
-    };
-
-    setRooms((prev) => [roomToAdd, ...prev]);
-
-    setNewRoom({
-      roomNumber: "",
-      roomType: "Standard",
-      price: "",
-      capacity: "",
-      status: "Available",
-    });
-
-    setIsAddModalOpen(false);
-  };
-
-  const handleOpenEditModal = (room) => {
-    setEditingRoom(room);
-    setIsEditModalOpen(true);
-  };
-
   const handleEditRoomChange = (e) => {
     const { name, value } = e.target;
 
@@ -109,24 +78,41 @@ export default function AdminRoomsPage() {
     }));
   };
 
-  const handleUpdateRoom = (e) => {
+  const handleAddRoom = async (e) => {
     e.preventDefault();
 
-    setRooms((prev) =>
-      prev.map((room) => (room.id === editingRoom.id ? editingRoom : room))
-    );
+    await adminRoomService.createRoom(newRoom);
+    const roomsData = await loadRooms();
+    setRooms(roomsData);
+
+    setNewRoom({
+      roomNumber: "",
+      roomTypeId: "rt-1",
+      status: "Available",
+    });
+
+    setIsAddModalOpen(false);
+  };
+
+  const handleUpdateRoom = async (e) => {
+    e.preventDefault();
+
+    if (!editingRoom) return;
+
+    await adminRoomService.updateRoom(editingRoom.id, editingRoom);
+    const roomsData = await loadRooms();
+    setRooms(roomsData);
 
     setIsEditModalOpen(false);
     setEditingRoom(null);
   };
 
-  const handleOpenDeleteModal = (room) => {
-    setDeletingRoom(room);
-    setIsDeleteModalOpen(true);
-  };
+  const handleDeleteRoom = async () => {
+    if (!deletingRoom) return;
 
-  const handleDeleteRoom = () => {
-    setRooms((prev) => prev.filter((room) => room.id !== deletingRoom.id));
+    await adminRoomService.deleteRoom(deletingRoom.id);
+    const roomsData = await loadRooms();
+    setRooms(roomsData);
 
     setIsDeleteModalOpen(false);
     setDeletingRoom(null);
@@ -224,14 +210,20 @@ export default function AdminRoomsPage() {
                     <td className="px-4 py-3 text-sm">
                       <div className="flex gap-2">
                         <button
-                          onClick={() => handleOpenEditModal(room)}
+                          onClick={() => {
+                            setEditingRoom(room);
+                            setIsEditModalOpen(true);
+                          }}
                           className="rounded-lg bg-blue-100 px-3 py-1 text-blue-700 hover:bg-blue-200"
                         >
                           Edit
                         </button>
 
                         <button
-                          onClick={() => handleOpenDeleteModal(room)}
+                          onClick={() => {
+                            setDeletingRoom(room);
+                            setIsDeleteModalOpen(true);
+                          }}
                           className="rounded-lg bg-slate-200 px-3 py-1 text-slate-700 hover:bg-slate-300"
                         >
                           Delete
@@ -291,14 +283,16 @@ export default function AdminRoomsPage() {
                     Room Type
                   </label>
                   <select
-                    name="roomType"
-                    value={newRoom.roomType}
+                    name="roomTypeId"
+                    value={newRoom.roomTypeId}
                     onChange={handleNewRoomChange}
                     className="w-full rounded-lg border border-slate-300 px-4 py-2 outline-none focus:border-amber-500"
                   >
-                    <option value="Standard">Standard</option>
-                    <option value="Deluxe">Deluxe</option>
-                    <option value="VIP">VIP</option>
+                    {roomTypes.map((roomType) => (
+                      <option key={roomType.id} value={roomType.id}>
+                        {roomType.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -316,36 +310,6 @@ export default function AdminRoomsPage() {
                     <option value="Booked">Booked</option>
                     <option value="Maintenance">Maintenance</option>
                   </select>
-                </div>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Price
-                  </label>
-                  <input
-                    type="text"
-                    name="price"
-                    value={newRoom.price}
-                    onChange={handleNewRoomChange}
-                    required
-                    className="w-full rounded-lg border border-slate-300 px-4 py-2 outline-none focus:border-amber-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Capacity
-                  </label>
-                  <input
-                    type="text"
-                    name="capacity"
-                    value={newRoom.capacity}
-                    onChange={handleNewRoomChange}
-                    required
-                    className="w-full rounded-lg border border-slate-300 px-4 py-2 outline-none focus:border-amber-500"
-                  />
                 </div>
               </div>
 
@@ -409,14 +373,16 @@ export default function AdminRoomsPage() {
                     Room Type
                   </label>
                   <select
-                    name="roomType"
-                    value={editingRoom.roomType}
+                    name="roomTypeId"
+                    value={editingRoom.roomTypeId}
                     onChange={handleEditRoomChange}
                     className="w-full rounded-lg border border-slate-300 px-4 py-2 outline-none focus:border-amber-500"
                   >
-                    <option value="Standard">Standard</option>
-                    <option value="Deluxe">Deluxe</option>
-                    <option value="VIP">VIP</option>
+                    {roomTypes.map((roomType) => (
+                      <option key={roomType.id} value={roomType.id}>
+                        {roomType.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -434,36 +400,6 @@ export default function AdminRoomsPage() {
                     <option value="Booked">Booked</option>
                     <option value="Maintenance">Maintenance</option>
                   </select>
-                </div>
-              </div>
-
-              <div className="grid gap-4 md:grid-cols-2">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Price
-                  </label>
-                  <input
-                    type="text"
-                    name="price"
-                    value={editingRoom.price}
-                    onChange={handleEditRoomChange}
-                    required
-                    className="w-full rounded-lg border border-slate-300 px-4 py-2 outline-none focus:border-amber-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-700">
-                    Capacity
-                  </label>
-                  <input
-                    type="text"
-                    name="capacity"
-                    value={editingRoom.capacity}
-                    onChange={handleEditRoomChange}
-                    required
-                    className="w-full rounded-lg border border-slate-300 px-4 py-2 outline-none focus:border-amber-500"
-                  />
                 </div>
               </div>
 
