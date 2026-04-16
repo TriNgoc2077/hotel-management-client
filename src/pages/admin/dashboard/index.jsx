@@ -48,8 +48,13 @@ export default function AdminDashboardPage() {
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <p className="text-sm text-slate-500">{card.title}</p>
-                  <h2 className="mt-2 text-2xl font-bold text-slate-800">
+                  <p className="text-sm font-medium text-slate-700">
+                    {card.title}
+                  </p>
+                  <h2
+                    className="mt-2 text-3xl font-bold"
+                    style={{ color: "#0f172a" }}
+                  >
                     {card.value}
                   </h2>
                 </div>
@@ -59,7 +64,9 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <p className="mt-4 text-sm text-slate-500">{card.description}</p>
+              <p className="mt-4 text-sm text-slate-600">
+                {card.description}
+              </p>
             </div>
           );
         })}
