@@ -6,6 +6,12 @@ import App from "../App";
 import MainLayout from "../layouts/main";
 import PublicRoute from "./PublicRoute";
 import AdminLayout from "../layouts/admin";
+import AdminDashboardPage from "../pages/admin/dashboard";
+import AdminUsersPage from "../pages/admin/users";
+import AdminReportsPage from "../pages/admin/reports";
+import AdminRoomsPage from "../pages/admin/rooms";
+import AdminServicesPage from "../pages/admin/services";
+import AdminBookingsPage from "../pages/admin/bookings";
 
 export default function AppRoutes() {
   return useRoutes([
@@ -35,6 +41,40 @@ export default function AppRoutes() {
             },
           ],
         },
+        {
+          element: <AdminLayout />,
+          children: [
+            {
+              path: "/admin",
+              element: <AdminDashboardPage />,
+            },
+            // ... children
+            // {
+            //   path,
+            //   element
+            // }
+          ],
+        },
+        {
+          path: "/admin/users",
+          element: <AdminUsersPage />,
+        },
+        {
+          path: "/admin/reports",
+          element: <AdminReportsPage />,
+        },
+        {
+          path: "/admin/rooms",
+          element: <AdminRoomsPage />,
+        },
+        {
+          path: "/admin/services",
+          element: <AdminServicesPage />,
+        },
+        {
+          path: "/admin/bookings",
+          element: <AdminBookingsPage />,
+        },
 
         // * Private route
       ],
@@ -47,8 +87,8 @@ export default function AppRoutes() {
         //   path,
         //   element
         // }
-      ]
-    }
+      ],
+    },
     // ** Manager layout
   ]);
 }
