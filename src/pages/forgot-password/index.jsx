@@ -36,7 +36,7 @@ export default function ForgotPasswordPage() {
       <div className="relative z-10 w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-serif text-white mb-2">Reset Password</h1>
+          <h1 className="text-4xl font-serif text-white! mb-2">Reset Password</h1>
           <p className="text-slate-400">We'll help you get back to your account</p>
         </div>
 

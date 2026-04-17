@@ -5,18 +5,18 @@ export const NAV_HEADER_ITEMS = [
     label: "Home",
   },
   {
-    type: "anchor",
-    href: "#rooms",
+    type: "route",
+    href: "/rooms",
     label: "Rooms",
   },
   {
-    type: "anchor",
-    href: "#amenities",
+    type: "route",
+    href: "/amenities",
     label: "Amenities",
   },
   {
-    type: "anchor",
-    href: "#community",
+    type: "route",
+    href: "/community",
     label: "Community",
   },
 ];

@@ -63,8 +63,8 @@ export default function RegisterPage() {
 
       <div className="relative z-10 w-full max-w-md">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-serif text-white mb-2">Create Account</h1>
+        <div className="text-center my-8">
+          <h1 className="text-4xl font-serif text-white! mb-2">Create Account</h1>
           <p className="text-slate-400">Join us for an unforgettable experience</p>
         </div>
 

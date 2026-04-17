@@ -45,7 +45,7 @@ export default function LoginPage() {
       <div className="relative z-10 w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-serif text-white mb-2">Welcome Back</h1>
+          <h1 className="text-4xl font-serif text-white! mb-2">Welcome Back</h1>
           <p className="text-slate-400">Sign in to your account to continue</p>
         </div>
 
