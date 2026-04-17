@@ -2,9 +2,9 @@ import { NavLink, Outlet } from "react-router-dom";
 
 const AdminLayout = () => {
   return (
-    <div className="flex h-screen">
+    <div className="flex min-h-screen">
       {/* Sidebar */}
-      <div className="w-56 bg-gray-800 text-white p-4 pt-25">
+      <div className="w-56 min-h-screen bg-gray-800 text-white p-4 pt-25">
         <h2 className="text-lg font-bold mb-4">Admin</h2>
 
         <nav className="flex flex-col gap-2">

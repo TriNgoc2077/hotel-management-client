@@ -167,19 +167,19 @@ export default function AdminBookingsPage() {
   };
 
   return (
-    <div className="space-y-6 pt-12">
+    <div className="-mt-7 space-y-4 pt-1">
       <div>
-        <h1 className="text-3xl font-bold text-slate-800">
+        <h1 className="text-base font-semibold text-slate-800">
           Booking Management
         </h1>
-        <p className="mt-2 text-slate-500">
+        <p className="mt-0 text-xs text-slate-500">
           Manage hotel bookings in admin panel
         </p>
       </div>
 
       <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <h2 className="text-xl font-semibold text-slate-800">Booking List</h2>
+          <h2 className="text-lg font-semibold text-slate-800">Booking List</h2>
 
           <div className="flex flex-col gap-3 md:flex-row">
             <input

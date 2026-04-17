@@ -29,10 +29,12 @@ export default function AdminDashboardPage() {
   ];
 
   return (
-    <div className="space-y-6 pt-6">
+    <div className="-mt-6 space-y-3 pt-0">
       <div>
-        <h1 className="text-3xl font-bold text-slate-800">Admin Dashboard</h1>
-        <p className="mt-2 text-slate-500">
+        <h1 className="text-base font-semibold text-slate-800">
+          Admin Dashboard
+        </h1>
+        <p className="mt-0 text-xs text-slate-500">
           Overview of hotel management activities
         </p>
       </div>
@@ -64,9 +66,7 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <p className="mt-4 text-sm text-slate-600">
-                {card.description}
-              </p>
+              <p className="mt-4 text-sm text-slate-600">{card.description}</p>
             </div>
           );
         })}
