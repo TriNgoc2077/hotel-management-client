@@ -18,11 +18,12 @@ import {
   Phone,
 } from "lucide-react";
 import img from "./assets/images/rectangle-1.png";
+import BookingSearchBar from "./components/BookingSearchBar";
+import { Link } from "react-router-dom";
 
 const App = () => {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 selection:bg-amber-200 selection:text-amber-900">
-
       {/* Hero Section */}
       <section
         id="home"
@@ -63,67 +64,7 @@ const App = () => {
 
       {/* Booking Widget (Overlapping) */}
       <section className="relative z-20 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-24 md:-mt-16 mb-20">
-        <div className="bg-white rounded-xl shadow-2xl p-4 md:p-8 border border-slate-100">
-          <form className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 items-end">
-            <div className="flex flex-col space-y-2">
-              <label className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                Check In
-              </label>
-              <div className="relative">
-                <Calendar
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-600"
-                  size={20}
-                />
-                <input
-                  type="date"
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all text-slate-700"
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col space-y-2">
-              <label className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                Check Out
-              </label>
-              <div className="relative">
-                <Calendar
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-600"
-                  size={20}
-                />
-                <input
-                  type="date"
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all text-slate-700"
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col space-y-2">
-              <label className="text-sm font-semibold text-slate-500 uppercase tracking-wider">
-                Guests
-              </label>
-              <div className="relative">
-                <Users
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-amber-600"
-                  size={20}
-                />
-                <select className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 transition-all text-slate-700 appearance-none">
-                  <option>1 Adult, 0 Children</option>
-                  <option>2 Adults, 0 Children</option>
-                  <option>2 Adults, 1 Child</option>
-                  <option>2 Adults, 2 Children</option>
-                  <option>More options...</option>
-                </select>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3.5 rounded-md transition-colors shadow-lg shadow-slate-900/20 flex justify-center items-center"
-            >
-              Check Availability
-            </button>
-          </form>
-        </div>
+        <BookingSearchBar />
       </section>
 
       {/* Intro / Amenities Section */}
@@ -357,9 +298,9 @@ const App = () => {
           </div>
 
           <div className="mt-12 text-center">
-            <button className="border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white px-8 py-3 rounded-sm font-semibold transition-colors duration-300">
+            <Link to="/rooms" className="border-2 border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white px-8 py-3 rounded-sm font-semibold transition-colors duration-300">
               View All Accommodations
-            </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -367,53 +308,59 @@ const App = () => {
       {/* Community / Testimonials Section */}
       <section
         id="community"
-        className="py-24 bg-slate-900 text-white relative overflow-hidden"
+        className="py-32 bg-white relative overflow-hidden"
       >
         {/* Abstract Background pattern */}
-        <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-          <div className="absolute w-96 h-96 bg-amber-500 rounded-full blur-[100px] -top-20 -left-20"></div>
-          <div className="absolute w-96 h-96 bg-blue-500 rounded-full blur-[120px] bottom-0 right-0"></div>
-        </div>
+        <div className="absolute top-0 right-0 w-150 h-150 bg-amber-500/5 rounded-full blur-[120px] -mr-[300px] -mt-[300px]"></div>
+        <div className="absolute bottom-0 left-0 w-150 h-150 bg-slate-100 rounded-full blur-[100px] -ml-[300px] -mb-[300px]"></div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <div>
-              <p className="text-amber-500 font-semibold tracking-wider uppercase text-sm mb-2">
-                Our Community
+              <p className="text-amber-600 font-bold tracking-[0.25em] uppercase text-xs mb-4">
+                Global Connection
               </p>
-              <h2 className="text-4xl md:text-5xl font-serif mb-6">
-                Unforgettable Moments Shared by You
+              <h2 className="text-4xl md:text-6xl font-serif text-slate-900 mb-8 leading-tight">
+                Unforgettable Moments <br /> Shared by Our Guests
               </h2>
-              <p className="text-slate-300 text-lg mb-8 leading-relaxed">
+              <p className="text-slate-500 text-lg mb-10 leading-relaxed font-medium">
                 Join our vibrant community of travelers. See how guests from
                 around the world are experiencing the magic of Aura. Share your
                 moments using #AuraExperience.
               </p>
 
               {/* Single Highlighted Review */}
-              <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl p-6 md:p-8">
-                <div className="flex items-center space-x-1 text-amber-500 mb-4">
+              <div className="bg-slate-50 border border-slate-100 rounded-[40px] p-8 md:p-12 shadow-2xl shadow-slate-200/50 relative group">
+                <div className="absolute -top-6 -left-6 bg-white w-16 h-16 rounded-full flex items-center justify-center shadow-xl text-amber-500 border border-slate-50 group-hover:scale-110 transition-transform">
+                  <Star size={24} className="fill-current" />
+                </div>
+                <div className="flex items-center space-x-1 text-amber-500 mb-6">
                   <Star size={18} className="fill-current" />
                   <Star size={18} className="fill-current" />
                   <Star size={18} className="fill-current" />
                   <Star size={18} className="fill-current" />
                   <Star size={18} className="fill-current" />
                 </div>
-                <p className="text-lg md:text-xl font-serif italic text-white/90 mb-6">
+                <p className="text-xl md:text-2xl font-serif italic text-slate-700 mb-8 leading-relaxed">
                   "Absolutely stellar experience! The attention to detail is
                   unmatched, and the staff made us feel like royalty. The garden
                   villa was a dream come true."
                 </p>
-                <div className="flex items-center space-x-4">
-                  <img
-                    src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80"
-                    alt="Guest"
-                    className="w-12 h-12 rounded-full object-cover border-2 border-amber-500"
-                  />
+                <div className="flex items-center space-x-5">
+                  <div className="relative">
+                    <img
+                      src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80"
+                      alt="Guest"
+                      className="w-14 h-14 rounded-full object-cover border-2 border-white shadow-lg"
+                    />
+                    <div className="absolute -bottom-1 -right-1 bg-emerald-500 w-4 h-4 rounded-full border-2 border-white"></div>
+                  </div>
                   <div>
-                    <h4 className="font-semibold text-white">Sarah Jenkins</h4>
-                    <p className="text-sm text-slate-400">
-                      Guest from London, UK
+                    <h4 className="font-bold text-slate-900 text-lg leading-tight text-left">
+                      Sarah Jenkins
+                    </h4>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest text-left">
+                      London, United Kingdom
                     </p>
                   </div>
                 </div>
@@ -421,36 +368,158 @@ const App = () => {
             </div>
 
             {/* Photo Collage (Community Posts) */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-4">
-                <img
-                  src="https://images.unsplash.com/photo-1512227121147-8723665b1bc1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-                  alt="Community Post"
-                  className="w-full h-48 object-cover rounded-xl shadow-lg hover:opacity-90 transition-opacity cursor-pointer"
-                />
-                <img
-                  src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-                  alt="Community Post"
-                  className="w-full h-64 object-cover rounded-xl shadow-lg hover:opacity-90 transition-opacity cursor-pointer"
-                />
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-6">
+                <div className="relative group overflow-hidden rounded-[32px] shadow-2xl shadow-slate-200/50">
+                  <img
+                    src="https://images.unsplash.com/photo-1512227121147-8723665b1bc1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                    alt="Community Post"
+                    className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-linear-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+                    <p className="text-white text-xs font-bold font-sans">
+                      #OceanViews
+                    </p>
+                  </div>
+                </div>
+                <div className="relative group overflow-hidden rounded-[32px] shadow-2xl shadow-slate-200/50">
+                  <img
+                    src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                    alt="Community Post"
+                    className="w-full h-72 object-cover group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-linear-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+                    <p className="text-white text-xs font-bold font-sans">
+                      #ZenMoments
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div className="space-y-4 pt-8">
-                <img
-                  src="https://images.unsplash.com/photo-1473625247510-8ceb1760943f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-                  alt="Community Post"
-                  className="w-full h-64 object-cover rounded-xl shadow-lg hover:opacity-90 transition-opacity cursor-pointer"
-                />
-                <img
-                  src="https://images.unsplash.com/photo-1560624052-449f5ddf0c31?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
-                  alt="Community Post"
-                  className="w-full h-48 object-cover rounded-xl shadow-lg hover:opacity-90 transition-opacity cursor-pointer"
-                />
+              <div className="space-y-6 pt-12">
+                <div className="relative group overflow-hidden rounded-[32px] shadow-2xl shadow-slate-200/50">
+                  <img
+                    src="https://images.unsplash.com/photo-1473625247510-8ceb1760943f?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                    alt="Community Post"
+                    className="w-full h-72 object-cover group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-linear-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+                    <p className="text-white text-xs font-bold font-sans">
+                      #GourmetDining
+                    </p>
+                  </div>
+                </div>
+                <div className="relative group overflow-hidden rounded-[32px] shadow-2xl shadow-slate-200/50">
+                  <img
+                    src="https://images.unsplash.com/photo-1560624052-449f5ddf0c31?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"
+                    alt="Community Post"
+                    className="w-full h-56 object-cover group-hover:scale-110 transition-transform duration-700"
+                  />
+                  <div className="absolute inset-0 bg-linear-to-t from-slate-900/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+                    <p className="text-white text-xs font-bold font-sans">
+                      #InfinityEdge
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
+      {/* Footer / Newsletter (Simple Light) */}
+      <footer className="bg-slate-50 pt-24 pb-12 border-t border-slate-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-4 gap-12 mb-20">
+            <div className="col-span-2">
+              <h2 className="text-3xl font-serif text-slate-900 mb-6">
+                Aura Resort & Spa
+              </h2>
+              <p className="text-slate-500 max-w-sm mb-8 leading-relaxed font-medium">
+                Redefining luxury through architectural brilliance and heartfelt
+                service. Experience the sanctuary you deserve.
+              </p>
+              <div className="flex gap-4">
+                {[Instagram, Facebook, Twitter].map((Icon, i) => (
+                  <button
+                    key={i}
+                    className="w-12 h-12 rounded-full border border-slate-200 flex items-center justify-center text-slate-900 hover:bg-slate-900 hover:text-white transition-all shadow-sm"
+                  >
+                    <Icon size={18} />
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <h4 className="font-bold text-slate-900 mb-6 uppercase tracking-widest text-xs">
+                Quick Links
+              </h4>
+              <ul className="space-y-4 text-slate-500 font-medium">
+                <li>
+                  <a
+                    href="#"
+                    className="hover:text-amber-600 transition-colors"
+                  >
+                    About Us
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="hover:text-amber-600 transition-colors"
+                  >
+                    Our Suites
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="hover:text-amber-600 transition-colors"
+                  >
+                    Dining
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#"
+                    className="hover:text-amber-600 transition-colors"
+                  >
+                    Wellness
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-bold text-slate-900 mb-6 uppercase tracking-widest text-xs">
+                Contact
+              </h4>
+              <ul className="space-y-4 text-slate-500 font-medium">
+                <li className="flex items-center gap-3">
+                  <Mail size={16} /> concierge@aura.com
+                </li>
+                <li className="flex items-center gap-3">
+                  <Phone size={16} /> +1(555) 000-AURA
+                </li>
+                <li className="flex items-center gap-3">
+                  <MapPin size={16} /> Maldives Islands
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-slate-200 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-slate-400 text-sm font-medium">
+              &copy; 2026 Aura Resort & Spa. All rights reserved.
+            </p>
+            <div className="flex gap-8 text-slate-400 text-sm font-medium">
+              <a href="#" className="hover:text-slate-900 transition-colors">
+                Privacy Policy
+              </a>
+              <a href="#" className="hover:text-slate-900 transition-colors">
+                Terms of Service
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
